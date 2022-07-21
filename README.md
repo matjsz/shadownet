@@ -6,6 +6,24 @@ ShadowNET is an interface/environment for group pen-testing in real time. It can
 
 More can be seen in the **Under development Documentation**
 
+---
+
+## Installation
+
+This is the ShadowNET's client repository, you can see the server and the API server ones here: https://github.com/matjsilva/shadownet-server and https://github.com/matjsilva/shadownet-server
+
+If you are really willing to download ShadowNET's client, then you are in the right place!
+
+To install this version of the client, you just need to do this:
+
+<code>> git clone https://github.com/matjsilva/shadownet.git</code> <br/>
+<code>> cd shadownet</code> <br/>
+<code>> npm i</code>
+
+Then, after installing all the dependencies, you can start learning about the framework by running this command:
+
+<code>> node client.js help</code>
+
 ## What it can do in the actual version
 
 - Connect many devices in a single-channel network.
