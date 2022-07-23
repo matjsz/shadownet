@@ -1,8 +1,10 @@
-const {connect, netrunners} = require('./utils/handleConnection')
+const {connect, netrunners, login} = require('./utils/handleConnection')
 const chalk = require('chalk')
 const fs = require('fs')
 
 // DEBUG DATA - NOT GOING TO THE FINAL VERSION
+// TO-DO
+// [X] Fix server forced shutdown while trying to run "netrunners -o" while logged in
 
 // PLANED FEATURES
 // [ ] Probe => control a infected computer remotely (connect to the server, then connect to one of the infected computers on the server via backdoor/exploit).
@@ -31,26 +33,17 @@ function help(){
 }
 
 function netrunnersCMD(args){
-    if(args[1] == 'id'){
-        fs.readFile('./id.txt', 'utf-8', (err, data) => {
-            if(err){
-                console.log(err)
-            }
-            netrunners(data, args[2], args[3])  
-        })
-    } else{
-        netrunners(args[1], args[2], args[3])
-    }
+    const tokenFile = JSON.parse(fs.readFileSync('./auth0.json', {encoding: 'utf-8'}))
+    netrunners(tokenFile.token, args[1], args[2])
 }
 
-function saveId(args){
-    fs.writeFile('./id.txt', args[1], err => {
-        if(err){
-            console.log(err)
-        }
-    })
+function loginCMD(args){
+    login(args[1], args[2])
 
-    console.log('\nID succesfully saved!')
+    setTimeout(() => {
+        const data = fs.readFileSync('./mdtk.json', {encoding: 'utf-8'})
+        fs.writeFileSync('./auth0.json', data)
+    }, 2000)
 }
 
 // Levels of Access
@@ -69,13 +62,14 @@ var commands = {
         },
         'f': help
     },
-    'save-id': {
+    'login': {
         'loa': 2,
-        'help': "saves your id so you don't need to write it everytime you need to use it.",
+        'help': "logins into ShadowNET system.",
         'args': {
-            '[id]': 'your id'
+            '[id]': 'your id',
+            '[pass]': 'your pass'
         },
-        'f': saveId
+        'f': loginCMD
     },
     'netrunners': {
         'loa': 0,
@@ -95,5 +89,3 @@ if(Object.keys(commands).includes(process.argv.slice(2)[0])){
 } else{
     commands['help']['f']()
 }
-
-// connect('z6HihjzJxPc2gsuwROpM')
