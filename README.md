@@ -10,7 +10,7 @@ More can be seen in the **Under development Documentation**
 
 ## Installation
 
-This is the ShadowNET's client repository, you can see the server and the API server ones here: https://github.com/matjsilva/shadownet-server and https://github.com/matjsilva/shadownet-server
+This is the ShadowNET's client repository, you can see the server and the API server ones here: https://github.com/matjsilva/shadownet-server and https://github.com/matjsilva/shadownet-api
 
 If you are really willing to download ShadowNET's client, then you are in the right place!
 
