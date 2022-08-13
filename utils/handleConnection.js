@@ -5,7 +5,7 @@ const fs = require('fs')
 
 // TO-DO
 
-const devMode = false
+const devMode = false 
 const serverUrl = devMode ? 'http://localhost:3000' : 'https://shadownet-server.herokuapp.com/'
 
 const disconnectionReasons = {
