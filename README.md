@@ -22,7 +22,7 @@ To install this version of the client, you just need to do this:
 
 Then, after installing all the dependencies, you can start learning about the framework by running this command:
 
-<code>> node client.js help</code>
+<code>> node sdnt help</code>
 
 ## What it can do in the actual version
 
