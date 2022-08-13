@@ -4,7 +4,6 @@ const prompt = require('prompt-sync')()
 const fs = require('fs')
 
 // TO-DO
-// [ ] Fix server forced shutdown while trying to run "netrunners -o" while logged in
 
 const devMode = false
 const serverUrl = devMode ? 'http://localhost:3000' : 'https://shadownet-server.herokuapp.com/'
@@ -70,6 +69,175 @@ const connect = (token) => {
         console.log(`[${chalk.red.bold('DENIED')}] Your token was rejected.`)
         socket.disconnect()
     })
+
+    socket.on('yell', (data) => {
+        console.log(`\nGLOBAL EVENT ============================\n\n${data}\n`)
+    })
+}
+
+const listen = (token) => {
+    console.log(`\n[${chalk.blue.bold('CONNECTING')}] Waiting for server response...`)
+
+    // Connection
+    const socket = io(serverUrl, {
+        auth: {
+            token: token 
+        }
+    })
+
+    // CLIENT EVENTS
+
+    socket.on("connect", () => {
+        if(token == null || token == undefined || token == ""){
+            console.log(`[${chalk.yellow.bold('DISCONNECTING')}] Token not provided. Closing connection.`)
+            socket.disconnect()
+        } else{
+            console.log(`[${chalk.green.bold('CONNECTED')}] Succesfully connected to ${chalk.magenta.bold('ShadowNET')}.`)
+
+            console.log(`[${chalk.blue.bold('INFO')}] Checking your authentication token...`)
+            socket.emit('check_token', token)
+        }
+    })
+
+    socket.on("connect_error", () => {
+        console.log(`[${chalk.blue.bold('RESTABLISHING')}] Lost connection to ${chalk.magenta.bold('ShadowNET')}. Trying to restablish connection...`)
+    })
+
+    socket.on("disconnect", (reason) => {
+        console.log(`[${chalk.red.bold('DISCONNECTED')}] Connection to ${chalk.magenta.bold('ShadowNET')} closed. => ${disconnectionReasons[reason]}`)
+    })
+
+    socket.on("hello", (arg) => {
+        console.log(arg)
+    })
+
+    socket.on('token_found', (data) => {
+        console.log(`[${chalk.green.bold('APPROVED')}] Your token was succesfully approved.`)
+
+        // Do your things
+        // data = user data catched from API
+        // socket.emit('do this', data)
+
+        console.log(`[${chalk.blue.bold('LISTENING')}] Listening to global events on the ${chalk.magenta.bold('ShadowNET')}...`)
+    })
+
+    socket.on('token_not_found', () => {
+        console.log(`[${chalk.red.bold('DENIED')}] Your token was rejected.`)
+        socket.disconnect()
+    })
+
+    socket.on('yell', (data) => {
+        console.log(`\nGLOBAL EVENT ============================\n\n${data}\n`)
+    })
+}
+
+const yell = (token, message, type) => {
+    console.log(`\n[${chalk.blue.bold('CONNECTING')}] Waiting for server response...`)
+
+    // Connection
+    const socket = io(serverUrl, {
+        auth: {
+            token: token 
+        }
+    })
+
+    // CLIENT EVENTS
+
+    socket.on("connect", () => {
+        if(token == null || token == undefined || token == ""){
+            console.log(`[${chalk.yellow.bold('DISCONNECTING')}] Token not provided. Closing connection.`)
+            socket.disconnect()
+        } else{
+            console.log(`[${chalk.green.bold('CONNECTED')}] Succesfully connected to ${chalk.magenta.bold('ShadowNET')}.`)
+
+            console.log(`[${chalk.blue.bold('INFO')}] Checking your authentication token...`)
+            socket.emit('check_token', token)
+        }
+    })
+
+    socket.on("connect_error", () => {
+        console.log(`[${chalk.blue.bold('RESTABLISHING')}] Lost connection to ${chalk.magenta.bold('ShadowNET')}. Trying to restablish connection...`)
+    })
+
+    socket.on("disconnect", (reason) => {
+        console.log(`[${chalk.red.bold('DISCONNECTED')}] Connection to ${chalk.magenta.bold('ShadowNET')} closed. => ${disconnectionReasons[reason]}`)
+    })
+
+    socket.on("hello", (arg) => {
+        console.log(arg)
+    })
+
+    socket.on('token_found', (data) => {
+        console.log(`[${chalk.green.bold('APPROVED')}] Your token was succesfully approved.`)
+
+        socket.emit('yell-server', {message: message, type: type})
+        socket.disconnect()
+    })
+
+    socket.on('token_not_found', () => {
+        console.log(`[${chalk.red.bold('DENIED')}] Your token was rejected.`)
+        socket.disconnect()
+    })
+}
+
+const probe = (token, probeID, cmd) => {
+    console.log(`\n[${chalk.blue.bold('CONNECTING')}] Waiting for server response...`)
+
+    // Connection
+    const socket = io(serverUrl, {
+        auth: {
+            token: token 
+        }
+    })
+
+    // CLIENT EVENTS
+
+    socket.on("connect", () => {
+        if(token == null || token == undefined || token == ""){
+            console.log(`[${chalk.yellow.bold('DISCONNECTING')}] Token not provided. Closing connection.`)
+            socket.disconnect()
+        } else{
+            console.log(`[${chalk.green.bold('CONNECTED')}] Succesfully connected to ${chalk.magenta.bold('ShadowNET')}.`)
+
+            console.log(`[${chalk.blue.bold('INFO')}] Checking your authentication token...`)
+            socket.emit('check_token', token)
+        }
+    })
+
+    socket.on("connect_error", () => {
+        console.log(`[${chalk.blue.bold('RESTABLISHING')}] Lost connection to ${chalk.magenta.bold('ShadowNET')}. Trying to restablish connection...`)
+    })
+
+    socket.on("disconnect", (reason) => {
+        console.log(`[${chalk.red.bold('DISCONNECTED')}] Connection to ${chalk.magenta.bold('ShadowNET')} closed. => ${disconnectionReasons[reason]}`)
+    })
+
+    socket.on("hello", (arg) => {
+        console.log(arg)
+    })
+
+    socket.on('token_found', (data) => {
+        console.log(`[${chalk.green.bold('APPROVED')}] Your token was succesfully approved.`)
+
+        socket.emit('cmd', {cmd: cmd, socketID: socket.id, probeID: probeID})
+    })
+
+    socket.on('token_not_found', () => {
+        console.log(`[${chalk.red.bold('DENIED')}] Your token was rejected.`)
+        socket.disconnect()
+    })
+
+    socket.on('probe_pkg', (res) => {
+        let response = res.output
+
+        console.log(`[${chalk.yellow.bold('PROBE RESPONSE')}] CMD Output: ${response}`)
+        const d = prompt('Press ENTER to disconnect...')
+        socket.disconnect()
+    })
+
+    socket.on('yell', (data) => {
+        console.log(`\nGLOBAL EVENT ============================\n\n${data}\n`)
+    })
 }
 
 const login = (id, pass) => {
@@ -113,6 +281,10 @@ const login = (id, pass) => {
     socket.on("login_failed", () => {
         console.log(`[${chalk.red.bold('DENIED')}] Your credentials has been denied. Try again.`)
         socket.disconnect()
+    })
+
+    socket.on('yell', (data) => {
+        console.log(`\nGLOBAL EVENT ============================\n\n${data}\n`)
     })
 }
 
@@ -216,8 +388,15 @@ const netrunners = (token, arg, netrunner) => {
         const d = prompt('Press ENTER to disconnect...')
         socket.disconnect()
     })
+
+    socket.on('yell', (data) => {
+        console.log(`\nGLOBAL EVENT ============================\n\n${data}\n`)
+    })
 }
 
 module.exports.connect = connect
 module.exports.netrunners = netrunners
 module.exports.login = login
+module.exports.probe = probe
+module.exports.listen = listen
+module.exports.yell = yell
